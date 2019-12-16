@@ -179,29 +179,19 @@ def create_app():
             description = request.form['description']
             category_field = request.form['category']
 
-            #categoryID = db.engine.execute('SELECT rowid, * FROM Category WHERE description = ? ',[category_field])
             sqlStatement = "SELECT rowid, * FROM Category WHERE description =" + "'" + category_field + "'"
-            #sqlStatement = "SELECT rowid, * FROM Category"
             categoryID = db.engine.execute(sqlStatement)
-            print('debuggggggggggggggggggggg' )
-            print(type(categoryID))
             my_list_of_categories = []
             for row in categoryID:
                 my_list_of_categories.append(row)
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-            #print(my_list_of_categories[0][0])
-            #print(my_list_of_categories)
             if len(my_list_of_categories) == 0:
                 returnStatus = db.engine.execute('INSERT INTO Category (description) VALUES (?)',[category_field],commit=True)
                 categoryID = db.engine.execute('SELECT rowid, * FROM Category WHERE description = ? ',[category_field])
                 my_list_of_categories = []
                 for row in categoryID:
                     my_list_of_categories.append(row)
-                print('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
-                print(my_list_of_categories)
                 categoryID = my_list_of_categories[0][0]
             else:
-                #categoryID = categoryID[0]['rowid']
                 categoryID = my_list_of_categories[0][0]
 
             returnStatus = db.engine.execute('INSERT INTO Book (author, title, isbn, description, category_id) VALUES (?, ?, ?, ?, ?)',
