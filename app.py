@@ -5,7 +5,7 @@
 # - Using string-based templates (instead of file-based templates)
 
 import datetime
-from flask import Flask, request, render_template_string, render_template
+from flask import Flask, request, render_template_string, render_template, redirect, url_for
 from flask_babelex import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import current_user, login_required, roles_required, UserManager, UserMixin
@@ -167,6 +167,59 @@ def create_app():
         #     my_list_of_books.append(row)
         my_list_of_books = [row for row in books]
         return render_template('all_books.html', books=my_list_of_books)
+
+
+    @app.route('/addbook', methods={'GET','POST'})
+    @login_required
+    def addbook():
+        if request.method == 'POST':
+            author = request.form['author']
+            title = request.form['title']
+            isbn = request.form['isbn']
+            description = request.form['description']
+            category_field = request.form['category']
+
+            #categoryID = db.engine.execute('SELECT rowid, * FROM Category WHERE description = ? ',[category_field])
+            sqlStatement = "SELECT rowid, * FROM Category WHERE description =" + "'" + category_field + "'"
+            #sqlStatement = "SELECT rowid, * FROM Category"
+            categoryID = db.engine.execute(sqlStatement)
+            print('debuggggggggggggggggggggg' )
+            print(type(categoryID))
+            my_list_of_categories = []
+            for row in categoryID:
+                my_list_of_categories.append(row)
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+            #print(my_list_of_categories[0][0])
+            #print(my_list_of_categories)
+            if len(my_list_of_categories) == 0:
+                returnStatus = db.engine.execute('INSERT INTO Category (description) VALUES (?)',[category_field],commit=True)
+                categoryID = db.engine.execute('SELECT rowid, * FROM Category WHERE description = ? ',[category_field])
+                my_list_of_categories = []
+                for row in categoryID:
+                    my_list_of_categories.append(row)
+                print('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
+                print(my_list_of_categories)
+                categoryID = my_list_of_categories[0][0]
+            else:
+                #categoryID = categoryID[0]['rowid']
+                categoryID = my_list_of_categories[0][0]
+
+            returnStatus = db.engine.execute('INSERT INTO Book (author, title, isbn, description, category_id) VALUES (?, ?, ?, ?, ?)',
+            (author, title, isbn, description, categoryID),commit=True)
+
+            return redirect(url_for('home_page'))
+
+        categories = db.engine.execute('SELECT * FROM Category ORDER BY description ASC')
+        return render_template('addbook.html', categories=categories)
+
+    @app.route('/categories')
+    @login_required
+    def categories():
+        categories = db.engine.execute('SELECT rowid, * FROM Category ORDER BY description ASC')
+        for cat in categories:
+            print(cat['rowid'])
+        return render_template('categories.html', categories=categories)
+
 
     @app.context_processor
     def utility_processor():

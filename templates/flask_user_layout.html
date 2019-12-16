@@ -48,15 +48,14 @@
                     <li><a href="{{ url_for('admin_page') }}" >Admin</a></li>
                     {% endif %}
                     <li><a href="{{ url_for('books') }}" >All Books</a></li>
-                    <li><a href="" >New Book</a></li>
-                    <li><a href="" >Categories </a></li>
+                    <li><a href="{{ url_for('addbook') }}" >New Book</a></li>
+                    <li><a href="{{ url_for('categories') }}" >Categories </a></li>
                 </ul>
 
                 <ul class="nav navbar-nav" style="float:right" >
                   {% if call_or_get(current_user.is_authenticated) %}
-                      <li><a href="{{ url_for('user.edit_user_profile') }}">{{ current_user.username or current_user.email }}</a>
-                      &nbsp; | &nbsp;
-                      <a href="{{ url_for('user.logout') }}">{%trans%}Sign out{%endtrans%}</a></li>
+                      <li><a href="{{ url_for('user.edit_user_profile') }}">{{ current_user.username or current_user.email }}</a>&nbsp;|&nbsp;</li>
+                      <li><a href="{{ url_for('user.logout') }}">{%trans%}Sign out{%endtrans%}</a></li>
                   {% else %}
                       <li><a href="{{ url_for('user.login') }}">{%trans%}Sign in{%endtrans%}</a></li>
                   {% endif %}

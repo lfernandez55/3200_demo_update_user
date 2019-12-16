@@ -1,0 +1,71 @@
+{% extends "flask_user_layout.html" %}
+
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+<li class="breadcrumb-item active">New Book</li>
+{% endblock %}
+
+
+{% block page_content %}
+<div class="row">
+  <div class="col-sm-7 col-md-6 col-lg-5 col-centered">
+    <h1>{%trans%}Add Book{%endtrans%}</h1>
+    <form method="post" class="form">
+
+      <div class="form-group">
+        <div class="row">
+          <div class="col-xs-6">
+            <label>Author</label>
+          </div>
+        </div>
+        <input type="text" name="author" required placeholder="Kevin Kelly" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <div class="row">
+          <div class="col-xs-6">
+            <label>Title</label>
+          </div>
+        </div>
+        <input type="text" name="title" required placeholder="What Tech Wants" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <div class="row">
+          <div class="col-xs-6">
+            <label>isbn</label>
+          </div>
+        </div>
+        <input type="text" name="isbn" required placeholder="23" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <div class="row">
+          <div class="col-xs-6">
+            <label>Description</label>
+          </div>
+        </div>
+        <textarea name="description" required class="form-control" placeholder="A book about tech determinism"  ></textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="row">
+          <div class="col-xs-6">
+            <label>Category</label>
+          </div>
+        </div>
+        <input list="categories" name="category" class="form-control">
+        <datalist id="categories" >
+          {% for category in categories %}
+          <option value="{{category['description']}}">
+            {% endfor%}
+        </datalist>
+      </div>
+      <div>
+        <input type="submit" class="btn btn-default btn-primary">
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
