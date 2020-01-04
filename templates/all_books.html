@@ -14,6 +14,10 @@
   https://stackoverflow.com/questions/9486393/jinja2-change-the-value-of-a-variable-inside-a-loop
 #}
 
+<h1>Debug:   {{books}}<h1>
+
+{#
+  
 {% set ns = namespace(previousCategory='') %}
 {% for book in books %}
    {% if ns.previousCategory != book['c_description'] %}
@@ -28,5 +32,7 @@
 {% if books|length == 0 %}
 <h2>The DB Is Empty: Have You Seeded It?</h2>
 {% endif %}
+
+#}
 
 {% endblock %}

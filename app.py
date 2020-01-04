@@ -98,6 +98,7 @@ def create_app():
         __tablename__ = 'book'
         id = db.Column(db.Integer(), primary_key=True)
         author = db.Column(db.String(255), nullable=False)
+        title = db.Column(db.String(255), nullable=False)
         isbn = db.Column(db.Integer, nullable=False)
         description = db.Column(db.String(255), nullable=False)
         category_id = db.Column(db.Integer, db.ForeignKey('category.id'),
@@ -143,34 +144,35 @@ def create_app():
     @app.route('/seedDB')
     @roles_required('Admin')
     def seedDB():
-        #sqlQuery = db.engine.execute('CREATE TABLE IF NOT EXISTS Book (author TEXT,title TEXT, isbn INTEGER, description TEXT, category_id INTEGER)',commit=True)
-        #sqlQuery = db.engine.execute('CREATE TABLE IF NOT EXISTS Category (description TEXT)',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title,isbn, description, category_id) VALUES ("Mary Shelly","Frankenstein","1", "A horror story written by a romantic.","1")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title,isbn, description, category_id) VALUES ("Henry James","The Turn of the Screw","2", "Another British horror story.","1")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title,isbn, description, category_id) VALUES ("Max Weber","The Protestant Work Ethic and The Spirit of Capitalism","3", "A classic early 20th C. sociology text","2")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title,isbn, description, category_id) VALUES ("Robert Putnam","Bowling Alone","4", "A classic late 20th C. sociology test","2")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Category (description) VALUES ("Horror")',commit=True)
-        sqlQuery2 = db.engine.execute('INSERT INTO Category (description) VALUES ("Sociology")',commit=True)
+        cat = Category(description='Horror')
+        db.session.add(cat)
 
-        booksQuery = db.engine.execute('SELECT rowid, * FROM Book')
-        for book in booksQuery:
-            print(book['rowid'])
-            print(book['author'])
+        cat = Category(description='Sociology')
+        db.session.add(cat)
 
-        books = db.engine.execute('SELECT Category.description AS c_description, Book.description AS b_description, * FROM Category INNER JOIN Book ON Category.rowID=Book.category_id ')
-        for book in books:
-            print('ddd')
-            print(book['c_description'])
-            print(book['b_description'])
-            print(book['title'])
+        book = Book(author='Mary Shelly',title='Frankenstein',isbn=123,description='A horror story written by a romantic',category_id=1)
+        db.session.add(book)
+
+        #bulk INSERT
+        book_objects = [
+            Book(author='Henry James',title='The Turn of the Screw',isbn=12,description='Another British horror story',category_id=1),
+            Book(author='Karl Marx',title='The Communist Manifesto',isbn=1234,description='The iconic document of communism',category_id=2),
+            Book(author='Max Weber',title='The Protestant Ethic and The Spirit of Capitalism',isbn=1235,description='Protestantism catalyzed capitalism',category_id=2),
+        ]
+        db.session.bulk_save_objects(book_objects)
+
+        #after adding the objects to the session, commit it
+        db.session.commit()
 
         return '<h1>DB Seeded!</h1>'
 
     @app.route('/erase_DB')
     @roles_required('Admin')
     def eraseDB():
-            sqlQ = db.engine.execute('DELETE FROM Book',commit=True)
-            sqlQ = db.engine.execute('DELETE FROM Category',commit=True)
+            db.session.query(Book).delete()
+            db.session.query(Category).delete()
+            db.session.commit()
+
             return '<h1>DB Erased!</h1>'
 
 
@@ -182,7 +184,19 @@ def create_app():
         # for row in books:
         #     my_list_of_books.append(row)
         my_list_of_books = [row for row in books]
-        return render_template('all_books.html', books=my_list_of_books)
+        for row in my_list_of_books:
+            print('FOOOOOOOOOOO', row)
+
+
+        # print('ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
+        my_list_of_books2 = db.session.query(Category, Book).join(Category)
+        # print(type(my_list_of_books))
+        # print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        for row in my_list_of_books2:
+            print(row.Book.author)
+
+        #return 'TEMPPPPPPPPPPPPPPPPPPPP'
+        return render_template('all_books.html', books=my_list_of_books2)
 
 
     @app.route('/addbook', methods={'GET','POST'})
