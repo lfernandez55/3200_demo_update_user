@@ -88,6 +88,22 @@ def create_app():
     # Setup Flask-User and specify the User data-model
     user_manager = UserManager(app, db, User)
 
+    class Category(db.Model):
+        __tablename__ = 'category'
+        id = db.Column(db.Integer, primary_key=True)
+        description = db.Column(db.String(255), nullable=False)
+        books = db.relationship('Book', backref='category', lazy=True)
+
+    class Book(db.Model):
+        __tablename__ = 'book'
+        id = db.Column(db.Integer(), primary_key=True)
+        author = db.Column(db.String(255), nullable=False)
+        isbn = db.Column(db.Integer, nullable=False)
+        description = db.Column(db.String(255), nullable=False)
+        category_id = db.Column(db.Integer, db.ForeignKey('category.id'),
+        nullable=False)
+
+
     # Create all database tables
     db.create_all()
 
@@ -127,8 +143,8 @@ def create_app():
     @app.route('/seedDB')
     @roles_required('Admin')
     def seedDB():
-        sqlQuery = db.engine.execute('CREATE TABLE IF NOT EXISTS Book (author TEXT,title TEXT, isbn INTEGER, description TEXT, category_id INTEGER)',commit=True)
-        sqlQuery = db.engine.execute('CREATE TABLE IF NOT EXISTS Category (description TEXT)',commit=True)
+        #sqlQuery = db.engine.execute('CREATE TABLE IF NOT EXISTS Book (author TEXT,title TEXT, isbn INTEGER, description TEXT, category_id INTEGER)',commit=True)
+        #sqlQuery = db.engine.execute('CREATE TABLE IF NOT EXISTS Category (description TEXT)',commit=True)
         sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title,isbn, description, category_id) VALUES ("Mary Shelly","Frankenstein","1", "A horror story written by a romantic.","1")',commit=True)
         sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title,isbn, description, category_id) VALUES ("Henry James","The Turn of the Screw","2", "Another British horror story.","1")',commit=True)
         sqlQuery2 = db.engine.execute('INSERT INTO Book (author,title,isbn, description, category_id) VALUES ("Max Weber","The Protestant Work Ethic and The Spirit of Capitalism","3", "A classic early 20th C. sociology text","2")',commit=True)
