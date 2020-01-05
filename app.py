@@ -179,24 +179,12 @@ def create_app():
     @app.route('/all_books')
     @login_required
     def books():
-        books = db.engine.execute('SELECT Category.description AS c_description, Book.description AS b_description, * FROM Category INNER JOIN Book ON Category.rowID=Book.category_id  ORDER BY c_description ASC')
-        # my_list_of_books = []
-        # for row in books:
-        #     my_list_of_books.append(row)
-        my_list_of_books = [row for row in books]
-        for row in my_list_of_books:
-            print('FOOOOOOOOOOO', row)
-
-
-        # print('ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
-        my_list_of_books2 = db.session.query(Category, Book).join(Category)
+        my_list_of_books = db.session.query(Category, Book).join(Category).order_by(Category.id)
         # print(type(my_list_of_books))
-        # print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-        for row in my_list_of_books2:
-            print(row.Book.author)
+        # for row in my_list_of_books:
+        #     print(row.Book.author)
 
-        #return 'TEMPPPPPPPPPPPPPPPPPPPP'
-        return render_template('all_books.html', books=my_list_of_books2)
+        return render_template('all_books.html', books=my_list_of_books)
 
 
     @app.route('/addbook', methods={'GET','POST'})
