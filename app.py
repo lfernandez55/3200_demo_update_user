@@ -9,6 +9,8 @@ from flask import Flask, request, render_template_string, render_template, redir
 from flask_babelex import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import current_user, login_required, roles_required, UserManager, UserMixin
+from pprint import pprint
+
 
 
 # Class-based application configuration
@@ -45,7 +47,7 @@ def create_app():
     # Create Flask app load app.config
     app = Flask(__name__)
     app.config.from_object(__name__+'.ConfigClass')
-
+    app.config["SQLALCHEMY_ECHO"] = True
     # Initialize Flask-BabelEx
     babel = Babel(app)
 
@@ -197,36 +199,35 @@ def create_app():
             description = request.form['description']
             category_field = request.form['category']
 
-            sqlStatement = "SELECT rowid, * FROM Category WHERE description =" + "'" + category_field + "'"
-            categoryID = db.engine.execute(sqlStatement)
-            my_list_of_categories = []
-            for row in categoryID:
-                my_list_of_categories.append(row)
-            if len(my_list_of_categories) == 0:
-                returnStatus = db.engine.execute('INSERT INTO Category (description) VALUES (?)',[category_field],commit=True)
-                categoryID = db.engine.execute('SELECT rowid, * FROM Category WHERE description = ? ',[category_field])
-                my_list_of_categories = []
-                for row in categoryID:
-                    my_list_of_categories.append(row)
-                categoryID = my_list_of_categories[0][0]
-            else:
-                categoryID = my_list_of_categories[0][0]
+            category = Category.query.filter_by(description=category_field).first()
+            if category is None:
+                category = Category(description=category_field)
+                db.session.add(category)
+                # db.session.flush()
+                db.session.commit()
+                print('my new cat id:', category.id)
+            # else:
+                #we already have the category.id from the original category query so nothing needs to be done here
 
-            returnStatus = db.engine.execute('INSERT INTO Book (author, title, isbn, description, category_id) VALUES (?, ?, ?, ?, ?)',
-            (author, title, isbn, description, categoryID),commit=True)
-
+            book = Book(author=author,title=title,isbn=isbn,description=description,category_id=category.id)
+            db.session.add(book)
+            db.session.commit()
             return redirect(url_for('home_page'))
 
-        categories = db.engine.execute('SELECT * FROM Category ORDER BY description ASC')
+        categories = db.session.query(Category).order_by(Category.description)
         return render_template('addbook.html', categories=categories)
 
     @app.route('/categories')
     @login_required
     def categories():
-        categories = db.engine.execute('SELECT rowid, * FROM Category ORDER BY description ASC')
-        for cat in categories:
-            print(cat['rowid'])
+        categories = db.session.query(Category).order_by(Category.description)
         return render_template('categories.html', categories=categories)
+
+    @app.route('/books_in_category/<categoryID>')
+    @login_required
+    def books_in_cat(categoryID):
+        returnString = "TODO: Add query to retrieve books in category  " + categoryID
+        return returnString
 
 
     @app.context_processor

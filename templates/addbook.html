@@ -11,6 +11,7 @@
 <div class="row">
   <div class="col-sm-7 col-md-6 col-lg-5 col-centered">
     <h1>{%trans%}Add Book{%endtrans%}</h1>
+
     <form method="post" class="form">
 
       <div class="form-group">
@@ -19,7 +20,7 @@
             <label>Author</label>
           </div>
         </div>
-        <input type="text" name="author" required placeholder="Kevin Kelly" class="form-control">
+        <input type="text" name="author" required placeholder="Kevin Kelly" value="aaaa" class="form-control">
       </div>
 
       <div class="form-group">
@@ -28,7 +29,7 @@
             <label>Title</label>
           </div>
         </div>
-        <input type="text" name="title" required placeholder="What Tech Wants" class="form-control">
+        <input type="text" name="title" required placeholder="What Tech Wants" value="tttttt" class="form-control">
       </div>
 
       <div class="form-group">
@@ -37,7 +38,7 @@
             <label>isbn</label>
           </div>
         </div>
-        <input type="text" name="isbn" required placeholder="23" class="form-control">
+        <input type="text" name="isbn" required placeholder="23" value="12345" class="form-control">
       </div>
 
       <div class="form-group">
@@ -46,7 +47,7 @@
             <label>Description</label>
           </div>
         </div>
-        <textarea name="description" required class="form-control" placeholder="A book about tech determinism"  ></textarea>
+        <textarea name="description" required class="form-control" placeholder="A book about tech determinism"  >dddddd</textarea>
       </div>
 
       <div class="form-group">
@@ -58,8 +59,8 @@
         <input list="categories" name="category" class="form-control">
         <datalist id="categories" >
           {% for category in categories %}
-          <option value="{{category['description']}}">
-            {% endfor%}
+          <option value="{{category.description}}">
+          {% endfor%}
         </datalist>
       </div>
       <div>
