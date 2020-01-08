@@ -233,13 +233,11 @@ def create_app():
     @app.context_processor
     def utility_processor():
         def isAdmin(user):
-            sqlStatement = "SELECT roles.name FROM roles JOIN user_roles ON roles.id=user_roles.role_id JOIN users ON users.id=user_roles.user_id WHERE users.email='" + user + "' AND roles.name='Admin'"
-            roleName = db.engine.execute(sqlStatement)
-            roleName = [row for row in roleName]
-            if len(roleName) > 0 and roleName[0]['name'] == 'Admin':
-                returnValue = 1
-            else:
-                returnValue = 0
+            user_object = User.query.filter_by(email=user).first()
+            returnValue = 0
+            for role in user_object.roles:
+                if role.name == 'Admin':
+                    returnValue = 1
             return returnValue
         return dict(isAdmin=isAdmin)
     return app
