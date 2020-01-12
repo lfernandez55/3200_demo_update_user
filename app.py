@@ -94,7 +94,7 @@ def create_app():
         __tablename__ = 'category'
         id = db.Column(db.Integer, primary_key=True)
         description = db.Column(db.String(255), nullable=False)
-        books = db.relationship('Book', backref='category', lazy=True)
+        # books = db.relationship('Book', backref='category', lazy=True)
 
     class Book(db.Model):
         __tablename__ = 'book'
@@ -103,11 +103,10 @@ def create_app():
         title = db.Column(db.String(255), nullable=False)
         isbn = db.Column(db.Integer, nullable=False)
         description = db.Column(db.String(255), nullable=False)
-        category_id = db.Column(db.Integer, db.ForeignKey('category.id'),
-        nullable=False)
+        category_id = db.Column(db.Integer, db.ForeignKey('category.id'),nullable=False)
+        category = db.relationship('Category', backref='book', lazy=True)
 
-
-    # Create all database tables
+    # Create all database tables (every time a new table is added it runs this, otherwise it doesn't)
     db.create_all()
 
     # Create 'member@example.com' user with no roles
@@ -229,6 +228,42 @@ def create_app():
         returnString = "TODO: Add query to retrieve books in category  " + categoryID
         return returnString
 
+    @app.route('/edit_book/<bookID>', methods={'GET','POST'})
+    @login_required
+    def edit_book(bookID):
+
+        updated = False
+        if request.method == 'POST':
+            book_id = request.form['id']
+            author = request.form['author']
+            title = request.form['title']
+            isbn = request.form['isbn']
+            description = request.form['description']
+            category_field = request.form['category']
+
+            category = Category.query.filter_by(description=category_field).first()
+            if category is None:
+                category = Category(description=category_field)
+                db.session.add(category)
+                db.session.commit()
+                print('my new cat id:', category.id)
+            # TODO:  UPDATE BOOK HERE INSTEAD OF ADD
+            book = Book.query.filter_by(id=book_id).first()
+            book.author = author
+            book.title = title
+            book.isbn = isbn
+            book.description = description
+            book.category = category
+            db.session.add(book)
+            db.session.commit()
+            # return redirect(url_for('home_page'))
+            # return render_template('book_edit.html', book=book, categories=categories, updated=True)
+            updated = True
+
+        book = db.session.query(Book).filter(Book.id == bookID).first()
+        categories = db.session.query(Category).order_by(Category.description)
+
+        return render_template('book_edit.html', book=book, categories=categories, updated=updated)
 
     @app.context_processor
     def utility_processor():

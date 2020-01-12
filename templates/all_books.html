@@ -20,7 +20,7 @@
          <h2> {{book.Category.description}}</h2>
      {% endif %}
     <div>
-    {{ book.Book.title}} -- {{ book.Book.author}}
+    {{ book.Book.title}} -- {{ book.Book.author}} <a href="{{ url_for('edit_book', bookID=book.Book.id) }}">Edit</a>
     </div>
     {% set ns.previousCategory = book.Category.description %}
 
