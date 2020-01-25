@@ -2,7 +2,7 @@
 # To keep the example simple, we are applying some unusual techniques:
 # - Placing everything in one file
 # - Using class-based configuration (instead of file-based configuration)
-# - Using string-based templates (instead of file-based templates)
+# - Using string-based templates (instead of file-based templates)..
 
 import datetime
 from flask import Flask, request, render_template_string, render_template, redirect, url_for
@@ -10,7 +10,6 @@ from flask_babelex import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import current_user, login_required, roles_required, UserManager, UserMixin
 from pprint import pprint
-
 
 
 # Class-based application configuration
@@ -47,7 +46,7 @@ def create_app():
     # Create Flask app load app.config
     app = Flask(__name__)
     app.config.from_object(__name__+'.ConfigClass')
-    app.config["SQLALCHEMY_ECHO"] = True
+    app.config["SQLALCHEMY_ECHO"] = False
     # Initialize Flask-BabelEx
     babel = Babel(app)
 
@@ -191,6 +190,9 @@ def create_app():
     @app.route('/addbook', methods={'GET','POST'})
     @login_required
     def addbook():
+        categories = db.session.query(Category).order_by(Category.description)
+        errors={}
+        form_data={}
         if request.method == 'POST':
             author = request.form['author']
             title = request.form['title']
@@ -198,23 +200,34 @@ def create_app():
             description = request.form['description']
             category_field = request.form['category']
 
-            category = Category.query.filter_by(description=category_field).first()
-            if category is None:
-                category = Category(description=category_field)
-                db.session.add(category)
-                # db.session.flush()
+            for i in request.form:
+                form_data[i] = request.form[i]
+
+            # Perform validation on title:  is it unique?
+            book_title = Book.query.filter_by(title=title).first()
+            print(book_title)
+            if book_title is not None:
+                print("debugAAAAA")
+                errors = {"title":"This title already exists"}
+                return render_template('addbook.html', categories=categories, form_data=form_data, errors=errors)
+            else:
+                print("debugBBBBB")
+                category = Category.query.filter_by(description=category_field).first()
+                if category is None:
+                    category = Category(description=category_field)
+                    db.session.add(category)
+                    # db.session.flush()
+                    db.session.commit()
+                    print('my new cat id:', category.id)
+                # else:
+                    #we already have the category.id from the original category query so nothing needs to be done here
+
+                book = Book(author=author,title=title,isbn=isbn,description=description,category_id=category.id)
+                db.session.add(book)
                 db.session.commit()
-                print('my new cat id:', category.id)
-            # else:
-                #we already have the category.id from the original category query so nothing needs to be done here
+                return redirect(url_for('home_page'))
 
-            book = Book(author=author,title=title,isbn=isbn,description=description,category_id=category.id)
-            db.session.add(book)
-            db.session.commit()
-            return redirect(url_for('home_page'))
-
-        categories = db.session.query(Category).order_by(Category.description)
-        return render_template('addbook.html', categories=categories)
+        return render_template('addbook.html', categories=categories, form_data=form_data, errors=errors)
 
     @app.route('/categories')
     @login_required
