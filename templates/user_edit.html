@@ -1,0 +1,20 @@
+<h1>User Edit</h1>
+
+<form method="post" method="POST">
+
+  <input type="hidden" name="id" value="{{user.id}}">
+
+  <label>First Name:</label>
+  <input type="text" name="first_name" required value="{{user.first_name}}">
+  <br>
+
+  <label>Last Name:</label>
+  <input type="text" name="last_name" required value="{{user.last_name}}">
+  <br>
+
+  <label>Email:</label>
+  <input type="text" name="email" required value="{{user.email}}">
+  <br>
+
+  <input type="submit" >
+</form>
