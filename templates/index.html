@@ -6,65 +6,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Update User Demo</title>
   <style>
-    /* From https://medium.com/cloud-native-the-gathering/how-to-use-css-to-fade-in-and-fade-out-html-text-and-pictures-f45c11364f08 */
+    /* see https://www.w3schools.com/css/css3_animations.asp
+     https://www.w3schools.com/css/tryit.asp?filename=trycss3_animation1 
+     */
     .fade-out {
-      animation: fadeOut ease 8s;
-      -webkit-animation: fadeOut ease 8s;
-      -moz-animation: fadeOut ease 8s;
-      -o-animation: fadeOut ease 8s;
-      -ms-animation: fadeOut ease 8s;
-      /* From https://stackoverflow.com/questions/9196694/css3-animation-scale */
-      animation-fill-mode: forwards
+      background-color: red;
+      font-size: 2em;
+      animation-name: flash-msg;
+      animation-duration: 4s;
+      animation-fill-mode: forwards;
     }
 
-    @keyframes fadeOut {
-      0% {
+    @keyframes flash-msg {
+      from {
         opacity: 1;
       }
 
-      100% {
+      to {
         opacity: 0;
       }
     }
-
-    @-moz-keyframes fadeOut {
-      0% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0;
-      }
-    }
-
-    @-webkit-keyframes fadeOut {
-      0% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0;
-      }
-    }
-
-    @-o-keyframes fadeOut {
-      0% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0;
-      }
-    }
-
-    @-ms-keyframes fadeOut {
-      0% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0;
-      }
   </style>
 </head>
 
@@ -72,7 +33,7 @@
   {% with messages = get_flashed_messages() %}
   {% if messages %}
   {% for message in messages %}
-  <h2 class="fade-out" }>{{ message }}</h2>
+  <span class="fade-out" }>{{ message }}</span>
   {% endfor %}
   {% endif %}
   {% endwith %}
