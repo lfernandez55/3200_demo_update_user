@@ -54,23 +54,29 @@ def create_app():
 
     @app.route('/user_edit/<user_id>', methods={'GET','POST'})
     def user_edit(user_id):
-        # return render_template_string("Foo")
-        # user = db.session.query(User).first()
+        validation_error = ""
         user = User.query.filter(User.id == user_id).first()
-        print(user.id)
 
+        if request.method == 'GET':
+            print("debug:", user.first_name)
+            request.form.first_name = user.first_name
+            request.form.last_name = user.last_name
+            request.form.email = user.email
         if request.method == 'POST':
-            user.id = request.form['id']
-            user.first_name = request.form['first_name']
-            user.last_name = request.form['last_name']
-            user.email = request.form['email']
-            db.session.add(user)
-            db.session.commit()
-            flash('User Updated!!')
-            return redirect(url_for('home_page'))
-            updated = True
 
-        return render_template('user_edit.html', user=user)
+            if '@' not in request.form['email']:
+                validation_error = "Invalid Email!"
+            else:
+                user.first_name = request.form['first_name']
+                user.last_name = request.form['last_name']
+                user.email = request.form['email']
+
+                db.session.add(user)
+                db.session.commit()
+                flash('User Updated!!')
+                return redirect(url_for('home_page'))
+
+        return render_template('user_edit.html', validation_error=validation_error)
 
     return app
 
