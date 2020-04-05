@@ -58,11 +58,10 @@ def create_app():
         user = User.query.filter(User.id == user_id).first()
 
         if request.method == 'GET':
-            print("debug:", user.first_name)
             request.form.first_name = user.first_name
             request.form.last_name = user.last_name
             request.form.email = user.email
-        if request.method == 'POST':
+        elif request.method == 'POST':
 
             if '@' not in request.form['email']:
                 validation_error = "Invalid Email!"
