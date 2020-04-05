@@ -73,7 +73,8 @@ def create_app():
 
                 db.session.add(user)
                 db.session.commit()
-                flash('User Updated!!')
+                flash('User Updated!!', 'success')
+                flash('Demo error message...', 'error')
                 return redirect(url_for('home_page'))
 
         return render_template('user_edit.html', validation_error=validation_error)

@@ -10,13 +10,14 @@
      https://www.w3schools.com/css/tryit.asp?filename=trycss3_animation1 
      */
     .fade-out {
-      background-color: red;
+      /* background-color: red; */
       font-size: 2em;
       animation-name: flash-msg;
       animation-duration: 4s;
       animation-fill-mode: forwards;
     }
-
+    .error{background-color: red}
+    .success{background-color: green}
     @keyframes flash-msg {
       from {
         opacity: 1;
@@ -30,13 +31,13 @@
 </head>
 
 <body>
-  {% with messages = get_flashed_messages() %}
+{%- with messages = get_flashed_messages(with_categories=true) -%}
   {% if messages %}
-  {% for message in messages %}
-  <span class="fade-out" }>{{ message }}</span>
-  {% endfor %}
+      {% for category, message in messages %}
+          <span class="fade-out {{category}}">{{ message|safe }}</span><br>
+      {% endfor %}
   {% endif %}
-  {% endwith %}
+{%- endwith %}
 
 
   <h1>Update User Demo</h1>
